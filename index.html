@@ -2,15 +2,121 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>扫码开始游戏</title>
+  <title>点击小怪兽</title>
   <style>
-    body { text-align: center; padding: 40px; font-family: sans-serif; }
-    img { max-width: 300px; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f8ff;
+    }
+    h1 {
+      margin-top: 30px;
+    }
+    #game-area {
+      position: relative;
+      width: 90vw;
+      height: 60vh;
+      margin: 20px auto;
+      background-color: #e0f7fa;
+      border: 2px solid #26c6da;
+      overflow: hidden;
+    }
+    .monster {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background-color: #ff5252;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: white;
+    }
+    #score, #timer {
+      font-size: 20px;
+      margin: 10px;
+    }
+    #start-btn {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
-  <h1>欢迎体验小游戏</h1>
-  <p>扫码进入游戏：</p>
-  <img src="xx.png" alt="二维码">
+  <h1>点击小怪兽</h1>
+  <div id="score">得分: 0</div>
+  <div id="timer">剩余时间: 30 秒</div>
+  <button id="start-btn">开始游戏</button>
+  <div id="game-area"></div>
+
+  <script>
+    const gameArea = document.getElementById('game-area');
+    const scoreDisplay = document.getElementById('score');
+    const timerDisplay = document.getElementById('timer');
+    const startBtn = document.getElementById('start-btn');
+
+    let score = 0;
+    let timeLeft = 30;
+    let gameInterval, timerInterval;
+
+    function getRandomPosition() {
+      const x = Math.random() * (gameArea.clientWidth - 60);
+      const y = Math.random() * (gameArea.clientHeight - 60);
+      return { x, y };
+    }
+
+    function createMonster() {
+      const monster = document.createElement('div');
+      monster.className = 'monster';
+      monster.innerText = '👾';
+      const { x, y } = getRandomPosition();
+      monster.style.left = `${x}px`;
+      monster.style.top = `${y}px`;
+
+      monster.onclick = () => {
+        score++;
+        scoreDisplay.textContent = '得分: ' + score;
+        gameArea.removeChild(monster);
+      };
+
+      gameArea.appendChild(monster);
+      setTimeout(() => {
+        if (gameArea.contains(monster)) {
+          gameArea.removeChild(monster);
+        }
+      }, 800);
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      scoreDisplay.textContent = '得分: 0';
+      timerDisplay.textContent = '剩余时间: 30 秒';
+      startBtn.disabled = true;
+
+      gameInterval = setInterval(createMonster, 700);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = '剩余时间: ' + timeLeft + ' 秒';
+        if (timeLeft <= 0) {
+          clearInterval(gameInterval);
+          clearInterval(timerInterval);
+          startBtn.disabled = false;
+          alert('游戏结束！你的得分是：' + score);
+        }
+      }, 1000);
+    }
+
+    startBtn.addEventListener('click', startGame);
+  </script>
 </body>
+<h2>手机扫码打开：</h2>
+<img src="qr.png" alt="二维码" style="width: 200px; margin-bottom: 20px;">
 </html>
