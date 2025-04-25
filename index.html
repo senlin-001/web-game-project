@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页小游戏</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .qr-code {
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+        }
+        .game-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎来到打地鼠小游戏</h1>
+        <p>扫描下方二维码或在手机上打开以下链接来玩游戏：</p>
+        
+        <div class="qr-code" id="qrCode">
+            <!-- 二维码将通过JavaScript生成 -->
+        </div>
+        
+        <p>游戏链接：<a href="#" id="gameLink" class="game-link">点击玩游戏</a></p>
+    </div>
+
+    <script>
+        // 获取GitHub Pages的URL
+        const siteUrl = window.location.href.replace('index.html', 'game.html');
+        
+        // 设置游戏链接
+        document.getElementById('gameLink').href = siteUrl;
+        
+        // 使用QRCode.js生成二维码
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js';
+        script.onload = function() {
+            QRCode.toCanvas(document.getElementById('qrCode'), siteUrl, {
+                width: 180,
+                margin: 2
+            }, function(error) {
+                if (error) console.error(error);
+            });
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
