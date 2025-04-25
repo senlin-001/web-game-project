@@ -1,1 +1,3 @@
-![Uploading 1_1043002327_171_85_3_1002367262_32be481a515c631669cce1adebdb32ec.png…]()
+<div align="center">
+  <img src="https://github.com/senlin-001/web-game-project/blob/main/qr-code.png">
+</div>
