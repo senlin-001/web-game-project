@@ -10,6 +10,7 @@
             text-align: center;
             padding: 20px;
             background-color: #f0f0f0;
+            margin: 0;
         }
         .container {
             max-width: 600px;
@@ -22,15 +23,22 @@
         h1 {
             color: #333;
         }
-        .qr-code {
+        .qr-container {
             margin: 20px auto;
             width: 200px;
             height: 200px;
+            position: relative;
+        }
+        .qr-fallback {
+            width: 100%;
+            height: 100%;
             background-color: #eee;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #ccc;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            color: #666;
         }
         .game-link {
             display: inline-block;
@@ -41,39 +49,101 @@
             text-decoration: none;
             border-radius: 5px;
         }
+        .loading {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>欢迎来到打地鼠小游戏</h1>
+        <h1>网页小游戏</h1>
         <p>扫描下方二维码或在手机上打开以下链接来玩游戏：</p>
         
-        <div class="qr-code" id="qrCode">
+        <div class="qr-container" id="qrContainer">
             <!-- 二维码将通过JavaScript生成 -->
+            <div class="qr-fallback">
+                二维码加载中...<br>
+                <span class="loading">若未显示，请<a href="#" id="fallbackLink">点击此处</a></span>
+            </div>
         </div>
         
         <p>游戏链接：<a href="#" id="gameLink" class="game-link">点击玩游戏</a></p>
     </div>
 
     <script>
-        // 获取GitHub Pages的URL
-        const siteUrl = window.location.href.replace('index.html', 'game.html');
-        
-        // 设置游戏链接
-        document.getElementById('gameLink').href = siteUrl;
-        
-        // 使用QRCode.js生成二维码
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js';
-        script.onload = function() {
-            QRCode.toCanvas(document.getElementById('qrCode'), siteUrl, {
-                width: 180,
-                margin: 2
-            }, function(error) {
-                if (error) console.error(error);
-            });
-        };
-        document.body.appendChild(script);
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. 优先使用CDN加载QRCode.js（带错误处理）
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js';
+            script.async = true;
+            script.onerror = function() {
+                console.error('QRCode库加载失败，使用备用方案');
+                fallbackToDirectLink();
+            };
+            document.head.appendChild(script);
+
+            // 2. 备用方案：直接显示链接
+            function fallbackToDirectLink() {
+                const qrContainer = document.getElementById('qrContainer');
+                qrContainer.innerHTML = `
+                    <div style="padding: 20px; background: #fff8e1; border-radius: 5px;">
+                        <p>二维码加载失败，请手动访问：</p>
+                        <a href="${getGameUrl()}" id="fallbackLink" style="word-break: break-all;">${getGameUrl()}</a>
+                    </div>
+                `;
+                document.getElementById('fallbackLink').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.open(this.href, '_blank');
+                });
+            }
+
+            // 3. 获取游戏URL（处理不同部署情况）
+            function getGameUrl() {
+                // 优先使用GitHub Pages域名
+                if (window.location.hostname.includes('github.io')) {
+                    return window.location.href.replace('index.html', 'game.html');
+                }
+                // 本地开发时使用相对路径
+                return 'game.html';
+            }
+
+            // 4. 成功加载QRCode库后的回调
+            script.onload = function() {
+                try {
+                    const gameUrl = getGameUrl();
+                    const qrContainer = document.getElementById('qrContainer');
+                    
+                    // 创建Canvas元素
+                    const canvas = document.createElement('canvas');
+                    qrContainer.innerHTML = ''; // 清空容器
+                    qrContainer.appendChild(canvas);
+                    
+                    // 生成二维码
+                    QRCode.toCanvas(canvas, gameUrl, {
+                        width: 200,
+                        margin: 2,
+                        color: {
+                            dark: '#000000',
+                            light: '#ffffff'
+                        }
+                    }, function(error) {
+                        if (error) {
+                            console.error('二维码生成失败:', error);
+                            fallbackToDirectLink();
+                        } else {
+                            // 设置游戏链接
+                            document.getElementById('gameLink').href = gameUrl;
+                            document.getElementById('fallbackLink').href = gameUrl;
+                        }
+                    });
+                } catch (e) {
+                    console.error('二维码生成异常:', e);
+                    fallbackToDirectLink();
+                }
+            };
+        });
     </script>
 </body>
 </html>
